@@ -1,100 +1,674 @@
-<html>
-  <head>
-    <!-- JQuery Load -->
-    <script
-      src="https://code.jquery.com/jquery-3.7.1.js"
-      integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-      crossorigin="anonymous"
-    ></script>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>마음 돌탑 (Mind Stone) · 온라인 안식 공간</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #05070b;
+      color: #e2e8f0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
 
-    <!-- CSS Load -->
-    <link rel="stylesheet" href="css/reset.css" />
-    <link rel="stylesheet" href="css/style.css" />
+    /* 캔버스 배경 (별빛, 달, 반딧불이, 지면) */
+    #worldCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
 
-    <!-- script.js Load -->
-    <script src="js/script.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <div class="background">
-        <div class="moon-glow"></div>
-        <img src="./moon.png" alt="달 이미지" class="moon" />
-      </div>
+    /* 상단 헤더 */
+    .top-bar {
+      position: absolute;
+      top: env(safe-area-inset-top, 20px);
+      left: 20px;
+      right: 20px;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+    .brand-pill {
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 18px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .brand-sub {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: #f59e0b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+    .brand-title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-top: 3px;
+    }
+    .brand-count {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
 
-      <div class="text-container" style="left: -16px">
-        <p class="subheader typewriter">Here's to the fools who dream.</p>
-        <br />
-        <h1 class="typewriter">LaLa Land</h1>
-        <br />
-        <p class="typewriter">"City of Stars, are you shining just for me?"</p>
-        <br />
-        <div class="footer typewriter">- Mia Dolan, from La La Land</div>
-      </div>
+    .btn-chime {
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #f59e0b;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      transition: transform 0.15s;
+    }
+    .btn-chime:active {
+      transform: scale(0.92);
+    }
 
-      <div class="silhouette-container">
-        <img
-          src="dancing silhouette1.png"
-          class="dancing-silhouette"
-          alt="실루엣 1"
-        />
-        <img
-          src="dancing silhouette2.png"
-          class="dancing-silhouette"
-          alt="실루엣 2"
-        />
-        <img
-          src="dancing silhouette3 (2).png"
-          class="dancing-silhouette"
-          alt="실루엣 3"
-        />
-      </div>
+    /* 다른 사람들의 떠다니는 생각들 */
+    .community-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .stone-bubble {
+      pointer-events: auto;
+      position: absolute;
+      background: rgba(22, 30, 46, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #e2e8f0;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      animation: gentleFloat 4s ease-in-out infinite alternate;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .stone-bubble:active {
+      transform: scale(0.95);
+      background: rgba(245, 158, 11, 0.3);
+      border-color: #f59e0b;
+      color: #fff;
+    }
+    @keyframes gentleFloat {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-8px); }
+    }
 
-      <div class="bench-container">
-        <img src="./Bench.png" alt="벤치 이미지" class="bench" />
-      </div>
+    /* 하단 고정 인터랙션 바 (아이폰 사파리 100% 완벽 호환 입력창) */
+    .bottom-bar {
+      position: absolute;
+      bottom: env(safe-area-inset-bottom, 24px);
+      left: 0;
+      width: 100%;
+      padding: 0 16px 12px 16px;
+      z-index: 30;
+      display: flex;
+      justify-content: center;
+    }
+    .input-card {
+      width: 100%;
+      max-width: 500px;
+      background: rgba(13, 17, 28, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    .card-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .card-label strong {
+      color: #f8fafc;
+      font-weight: 600;
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    /* 중요: iOS Safari 폰트 16px 미만 자동 줌 방지 및 user-select 강제 허용 */
+    #worryInput {
+      flex: 1;
+      height: 48px;
+      background: rgba(4, 6, 12, 0.7);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 0 16px;
+      color: #ffffff !important;
+      font-size: 16px !important;
+      font-family: inherit;
+      outline: none;
+      -webkit-user-select: text !important;
+      user-select: text !important;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    #worryInput:focus {
+      border-color: #f59e0b;
+      background: rgba(4, 6, 12, 0.95);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+    }
+    #worryInput::placeholder {
+      color: #64748b;
+      font-size: 14px;
+    }
+    .btn-submit {
+      height: 48px;
+      padding: 0 20px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0b0d13;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn-submit:active {
+      transform: scale(0.95);
+      opacity: 0.9;
+    }
 
-      <div class="cat-container">
-        <img src="./cat.png" alt="고양이 이미지" class="cat" />
-      </div>
+    /* 완료 모달 (안식으로 화면 끄기) */
+    .finish-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(3, 4, 7, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      text-align: center;
+      animation: modalFadeIn 0.8s ease forwards;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .candle-icon {
+      font-size: 52px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.6));
+    }
+    .finish-title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #f8fafc;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .finish-desc {
+      font-size: 15px;
+      color: #94a3b8;
+      line-height: 1.8;
+      max-width: 340px;
+      margin-bottom: 30px;
+      font-weight: 300;
+    }
+    .finish-tag {
+      font-size: 13px;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 8px 18px;
+      border-radius: 30px;
+      margin-bottom: 36px;
+    }
+    .btn-screen-off {
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #f1f5f9;
+      padding: 16px 36px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      transition: all 0.2s;
+    }
+    .btn-screen-off:active {
+      background: #334155;
+      transform: scale(0.96);
+    }
+  </style>
+</head>
+<body>
 
-      <div class="streetlamp-container">
-        <img src="./Streetlamp.png" alt="가로등 이미지" class="streetlamp" />
-        <div class="light"></div>
-        <!-- 불빛 효과를 위한 요소 -->
-      </div>
+  <!-- 인터랙티브 캔버스 -->
+  <canvas id="worldCanvas"></canvas>
 
-      <div class="building-container" style="left: -44px">
-        <img
-          src="./Building silhouette.png"
-          alt="건물 실루엣 이미지"
-          class="building-silhouette"
-        />
-      </div>
-
-      <!-- 첫 번째 음표 -->
-      <div class="note1-container">
-        <img src="./Musical note.png" alt="첫 번째 음악 노트" class="note1" />
-      </div>
-
-      <!-- 두 번째 음표 -->
-      <div class="note2-container">
-        <img
-          src="./Musical note(2).png"
-          alt="두 번째 음악 노트"
-          class="note2"
-        />
-      </div>
-
-      <div class="ground"></div>
+  <!-- 상단 상태 바 -->
+  <div class="top-bar">
+    <div class="brand-pill">
+      <div class="brand-sub"><span class="pulse-dot"></span> VIRTUAL SANCTUARY</div>
+      <div class="brand-title">마음 돌탑</div>
+      <div class="brand-count" id="countDisplay">고요히 머무는 이 42명 · 오늘 쌓인 마음 1,428개</div>
     </div>
-    <div class="container">
-      <div class="sky">
-        <div class="text">#CODEVEMBER</div>
-        <div class="stars"></div>
-        <div class="stars1"></div>
-        <div class="stars2"></div>
-        <div class="shooting-stars"></div>
+    <button class="btn-chime" id="btnSound" title="풍경소리 울리기">🔔</button>
+  </div>
+
+  <!-- 떠다니는 다른 청년들의 생각들 -->
+  <div class="community-layer" id="bubbleLayer"></div>
+
+  <!-- 하단 마음 입력 및 돌 얹기 독 -->
+  <div class="bottom-bar">
+    <div class="input-card">
+      <div class="card-label">
+        <span>오늘 밤 내려놓고 싶은 <strong>마음 한 줄</strong></span>
+        <span style="color:#f59e0b;">하루 딱 1개</span>
+      </div>
+      <div class="input-group">
+        <input type="text" id="worryInput" placeholder="예: 오늘 하루도 참 치열하게 버텼다. 이제 쉴래." maxlength="30" autocomplete="off">
+        <button class="btn-submit" id="btnPlace">
+          <span>🪨 돌 얹기</span>
+        </button>
       </div>
     </div>
-  </body>
+  </div>
+
+  <!-- 안식 완료 마침표 모달 -->
+  <div class="finish-modal" id="finishModal">
+    <div class="candle-icon">🕯️</div>
+    <h2 class="finish-title">오늘의 돌이 고요히 얹혔습니다.<br>수고 많으셨습니다.</h2>
+    <p class="finish-desc">
+      오늘 하루 짊어졌던 무거운 짐은 돌탑에 맡겨두었습니다.<br><br>
+      더 이상의 영상도, 끝없는 알고리즘도 없습니다.<br>
+      이제 스마트폰을 내려두고 온전한 안식으로 들어가세요.
+    </p>
+    <div class="finish-tag">🌙 오늘의 서비스가 종료되었습니다</div>
+    <button class="btn-screen-off" id="btnBlackout">스마트폰 화면 끄기</button>
+  </div>
+
+  <script>
+    // 캔버스 그래픽 엔진
+    const canvas = document.getElementById('worldCanvas');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      initElements();
+    });
+
+    const stars = [];
+    const fireflies = [];
+
+    // 돌탑 층별 데이터 (온라인 산사 스타일 부드러운 자연석)
+    const stones = [
+      { w: 165, h: 46, text: "취업과 진로의 불안", c1: "#3b4759", c2: "#182230" },
+      { w: 135, h: 40, text: "끝없는 과제와 조모임", c1: "#47576d", c2: "#1e2b3d" },
+      { w: 110, h: 36, text: "남들과 비교하며 지친 나", c1: "#546882", c2: "#26364d" },
+      { w: 85,  h: 32, text: "도파민 알고리즘 멈추기", c1: "#637a99", c2: "#2f425e" },
+      { w: 68,  h: 28, text: "나를 위한 온전한 쉼", c1: "#738eb2", c2: "#395073" }
+    ];
+
+    function initElements() {
+      stars.length = 0;
+      for (let i = 0; i < 70; i++) {
+        stars.push({
+          x: Math.random() * W,
+          y: Math.random() * (H * 0.65),
+          r: Math.random() * 1.5 + 0.5,
+          a: Math.random() * 0.8 + 0.2,
+          sp: Math.random() * 0.03 + 0.01
+        });
+      }
+
+      fireflies.length = 0;
+      for (let i = 0; i < 22; i++) {
+        fireflies.push({
+          x: Math.random() * W,
+          y: H * 0.4 + Math.random() * (H * 0.45),
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.4,
+          r: Math.random() * 2 + 1,
+          a: Math.random() * 0.6 + 0.2,
+          sp: Math.random() * 0.05 + 0.02
+        });
+      }
+    }
+    initElements();
+
+    // 맑은 사찰 종소리 (Web Audio API)
+    let audioCtx = null;
+    function playBell() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(528, audioCtx.currentTime); // 528Hz 사랑과 치유의 주파수
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.0);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 3.0);
+      } catch (e) {}
+    }
+
+    document.getElementById('btnSound').addEventListener('click', () => {
+      playBell();
+      alert("은은한 쉼의 종소리가 울렸습니다 🔔");
+    });
+
+    // 다른 사람들의 생각 말풍선
+    const bubbleMsgs = [
+      "자취방에서 릴스 그만 보고 자야지",
+      "취업 불안하지만 오늘도 버텼다",
+      "엄마 전화 못 받아서 미안해",
+      "졸프 한 고비 넘겼다 다행이야",
+      "내일은 조금 더 편안하길"
+    ];
+    const bubbleLayer = document.getElementById('bubbleLayer');
+    bubbleMsgs.forEach((txt, i) => {
+      const b = document.createElement('div');
+      b.className = 'stone-bubble';
+      b.textContent = `🪨 "${txt}"`;
+      b.style.left = `${10 + (i % 2) * 55 + Math.random() * 10}%`;
+      b.style.top = `${25 + Math.floor(i / 2) * 16 + Math.random() * 6}%`;
+      b.style.animationDelay = `${i * 0.8}s`;
+      b.addEventListener('click', () => {
+        playBell();
+        alert(`익명의 청년이 탑에 남긴 마음:\n\n"${txt}"\n\n함께 위로를 보냈습니다 🕊️`);
+      });
+      bubbleLayer.appendChild(b);
+    });
+
+    // 렌더링 루프
+    let dropAnim = null;
+    function draw() {
+      const towerX = W / 2;
+      const towerBaseY = H * 0.72;
+
+      // 1. 배경 밤하늘
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, '#05070b');
+      bg.addColorStop(0.5, '#0b101c');
+      bg.addColorStop(1, '#161f30');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // 2. 은은한 보름달
+      const mx = W * 0.82;
+      const my = H * 0.16;
+      const mg = ctx.createRadialGradient(mx, my, 8, mx, my, 100);
+      mg.addColorStop(0, 'rgba(255, 253, 240, 0.95)');
+      mg.addColorStop(0.3, 'rgba(245, 230, 180, 0.35)');
+      mg.addColorStop(0.8, 'rgba(245, 200, 100, 0.08)');
+      mg.addColorStop(1, 'transparent');
+      ctx.fillStyle = mg;
+      ctx.beginPath();
+      ctx.arc(mx, my, 100, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#fffdf0';
+      ctx.beginPath();
+      ctx.arc(mx, my, 26, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 3. 반짝이는 별빛
+      stars.forEach(s => {
+        s.a += s.sp;
+        const alpha = 0.3 + Math.sin(s.a) * 0.4;
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 4. 고즈넉한 지면
+      ctx.fillStyle = '#080c14';
+      ctx.beginPath();
+      ctx.moveTo(0, H * 0.76);
+      ctx.quadraticCurveTo(W * 0.5, H * 0.73, W, H * 0.78);
+      ctx.lineTo(W, H);
+      ctx.lineTo(0, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // 5. 탑 받침석
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.ellipse(towerX, towerBaseY + 16, 105, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // 6. 돌탑 쌓기
+      let curY = towerBaseY + 8;
+      stones.forEach((st, idx) => {
+        curY -= (st.h * 0.76);
+        const rx = st.w / 2;
+        const ry = st.h / 2;
+
+        ctx.save();
+        ctx.translate(towerX, curY);
+
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 5;
+
+        const sg = ctx.createLinearGradient(-rx, -ry, rx, ry);
+        sg.addColorStop(0, st.c1);
+        sg.addColorStop(1, st.c2);
+        ctx.fillStyle = sg;
+
+        ctx.beginPath();
+        ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowColor = 'transparent';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(241, 245, 249, 0.88)';
+        ctx.font = '11px "Noto Serif KR", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(st.text, 0, 0);
+
+        ctx.restore();
+      });
+
+      // 떨어지는 새 조약돌
+      if (dropAnim) {
+        dropAnim.t += 0.04;
+        const p = Math.min(1, dropAnim.t);
+        const ease = 1 - Math.pow(1 - p, 3);
+        const dy = dropAnim.sy + (dropAnim.ey - dropAnim.sy) * ease;
+
+        ctx.save();
+        ctx.translate(towerX, dy);
+
+        ctx.shadowColor = 'rgba(245, 158, 11, 0.7)';
+        ctx.shadowBlur = 20;
+
+        const dg = ctx.createLinearGradient(-30, -15, 30, 15);
+        dg.addColorStop(0, '#fbbf24');
+        dg.addColorStop(1, '#b45309');
+        ctx.fillStyle = dg;
+
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 32, 16, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#05070b';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(dropAnim.text, 0, 0);
+
+        ctx.restore();
+
+        if (p >= 1) {
+          stones.push({
+            w: 64,
+            h: 26,
+            text: dropAnim.text,
+            c1: "#f59e0b",
+            c2: "#b45309"
+          });
+          dropAnim = null;
+          playBell();
+
+          setTimeout(() => {
+            document.getElementById('finishModal').style.display = 'flex';
+          }, 1000);
+        }
+      }
+
+      // 7. 반딧불이
+      fireflies.forEach(f => {
+        f.x += f.vx;
+        f.y += f.vy;
+        if (f.x < 0) f.x = W;
+        if (f.x > W) f.x = 0;
+        if (f.y < H * 0.4) f.vy *= -1;
+        if (f.y > H * 0.82) f.vy *= -1;
+
+        f.a += f.sp;
+        const alpha = 0.2 + Math.abs(Math.sin(f.a)) * 0.6;
+        ctx.fillStyle = `rgba(245, 158, 11, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    // 돌 얹기 클릭 이벤트
+    const btnPlace = document.getElementById('btnPlace');
+    const worryInput = document.getElementById('worryInput');
+    const countDisplay = document.getElementById('countDisplay');
+
+    
+    worryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnPlace.click();
+      }
+    });
+
+    btnPlace.addEventListener('click', () => {
+      const val = worryInput.value.trim() || '오늘 하루도 참 고생 많았다';
+      if (dropAnim) return;
+
+      playBell();
+
+      let topY = (H * 0.72) + 8;
+      stones.forEach(s => { topY -= (s.h * 0.76); });
+
+      dropAnim = {
+        sy: H * 0.15,
+        ey: topY - 20,
+        t: 0,
+        text: val
+      };
+
+      worryInput.value = '';
+      worryInput.blur();
+      btnPlace.disabled = true;
+      btnPlace.style.opacity = '0.5';
+
+      countDisplay.textContent = '고요히 머무는 이 42명 · 오늘 쌓인 마음 1,429개 (+1)';
+    });
+
+    // 화면 끄기
+    document.getElementById('btnBlackout').addEventListener('click', () => {
+      document.body.innerHTML = `
+        <div style="width:100vw; height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px;">
+          <div style="font-size:36px; margin-bottom:18px;">🌙</div>
+          <div style="font-size:20px; color:#f1f5f9; font-weight:600; margin-bottom:10px; font-family:'Noto Serif KR',serif;">화면이 꺼졌습니다.</div>
+          <div style="font-size:14px; color:#64748b; line-height:1.7;">스마트폰 전원 버튼을 누르고<br>오늘 밤은 깊고 편안한 안식 속으로 들어가세요.</div>
+        </div>
+      `;
+    });
+  </script>
+</body>
 </html>
