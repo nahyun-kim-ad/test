@@ -4,26 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>마음 돌탑 (Mind Stone) · 온라인 안식 공간</title>
+  <!-- 동글동글하고 따뜻한 나눔스퀘어라운드 & 고운돋움 웹폰트 -->
+  <link rel="stylesheet" href="https://hangeul.pstatic.net/hangeul_style/css/nanum-square-round.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      font-family: 'NanumSquareRound', 'Gowun Dodum', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #05070b;
-      color: #e2e8f0;
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #05070d;
+      color: #f8fafc;
     }
 
-    /* 캔버스 배경 (별빛, 달, 반딧불이, 지면) */
     #worldCanvas {
       position: absolute;
       top: 0;
@@ -47,55 +48,60 @@
     }
     .brand-pill {
       pointer-events: auto;
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(15, 23, 42, 0.72);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 12px 18px;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      border-radius: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
-    .brand-sub {
+    .brand-badge {
       font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      color: #f59e0b;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #fbbf24;
       display: flex;
       align-items: center;
       gap: 6px;
     }
-    .pulse-dot {
-      width: 6px;
-      height: 6px;
+    .live-dot {
+      width: 7px;
+      height: 7px;
       background: #10b981;
       border-radius: 50%;
-      box-shadow: 0 0 8px #10b981;
-      animation: pulse 2s infinite;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulseGreen 2s infinite;
     }
-    @keyframes pulse {
+    @keyframes pulseGreen {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(0.8); }
     }
-    .brand-title {
-      font-family: 'Noto Serif KR', serif;
+    .brand-name {
       font-size: 20px;
-      font-weight: 600;
-      color: #f8fafc;
-      margin-top: 3px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 2px;
+      letter-spacing: -0.3px;
     }
-    .brand-count {
+    .brand-status {
       font-size: 12px;
       color: #94a3b8;
       margin-top: 2px;
+      font-weight: 600;
     }
 
-    .btn-chime {
+    .top-controls {
+      display: flex;
+      gap: 8px;
       pointer-events: auto;
-      background: rgba(15, 23, 42, 0.75);
+    }
+    .ctrl-btn {
+      background: rgba(15, 23, 42, 0.72);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #f59e0b;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fbbf24;
       width: 44px;
       height: 44px;
       border-radius: 50%;
@@ -107,12 +113,12 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.4);
       transition: transform 0.15s;
     }
-    .btn-chime:active {
+    .ctrl-btn:active {
       transform: scale(0.92);
     }
 
-    /* 다른 사람들의 떠다니는 생각들 */
-    .community-layer {
+    /* 다른 사람들의 떠다니는 생각 말풍선 */
+    .bubble-layer {
       position: absolute;
       top: 0;
       left: 0;
@@ -121,35 +127,35 @@
       z-index: 10;
       pointer-events: none;
     }
-    .stone-bubble {
+    .thought-bubble {
       pointer-events: auto;
       position: absolute;
-      background: rgba(22, 30, 46, 0.82);
+      background: rgba(22, 32, 52, 0.85);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(245, 158, 11, 0.25);
-      padding: 7px 14px;
-      border-radius: 20px;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      padding: 8px 16px;
+      border-radius: 22px;
       font-size: 12px;
-      color: #e2e8f0;
+      font-weight: 700;
+      color: #f1f5f9;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-      animation: gentleFloat 4s ease-in-out infinite alternate;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+      animation: gentleSway 4s ease-in-out infinite alternate;
       white-space: nowrap;
       transition: all 0.2s;
     }
-    .stone-bubble:active {
+    .thought-bubble:active {
       transform: scale(0.95);
-      background: rgba(245, 158, 11, 0.3);
-      border-color: #f59e0b;
-      color: #fff;
+      background: rgba(251, 191, 36, 0.3);
+      border-color: #fbbf24;
     }
-    @keyframes gentleFloat {
+    @keyframes gentleSway {
       0% { transform: translateY(0); }
       100% { transform: translateY(-8px); }
     }
 
-    /* 하단 고정 인터랙션 바 (아이폰 사파리 100% 완벽 호환 입력창) */
+    /* 하단 인터랙션 바 */
     .bottom-bar {
       position: absolute;
       bottom: env(safe-area-inset-bottom, 24px);
@@ -160,82 +166,110 @@
       display: flex;
       justify-content: center;
     }
-    .input-card {
+    .input-dock {
       width: 100%;
       max-width: 500px;
-      background: rgba(13, 17, 28, 0.88);
+      background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 26px;
       padding: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      transition: opacity 0.5s, transform 0.5s;
     }
-    .card-label {
+    .dock-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
       font-size: 12px;
       color: #94a3b8;
+      font-weight: 700;
     }
-    .card-label strong {
+    .dock-header strong {
       color: #f8fafc;
-      font-weight: 600;
+      font-weight: 800;
     }
-    .input-group {
+    .input-row {
       display: flex;
       gap: 10px;
       align-items: center;
     }
-    /* 중요: iOS Safari 폰트 16px 미만 자동 줌 방지 및 user-select 강제 허용 */
     #worryInput {
       flex: 1;
       height: 48px;
-      background: rgba(4, 6, 12, 0.7);
-      border: 1.5px solid rgba(255, 255, 255, 0.15);
-      border-radius: 14px;
+      background: rgba(8, 12, 22, 0.75);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 16px;
       padding: 0 16px;
       color: #ffffff !important;
       font-size: 16px !important;
-      font-family: inherit;
+      font-weight: 600;
       outline: none;
       -webkit-user-select: text !important;
       user-select: text !important;
       transition: border-color 0.2s, background 0.2s;
     }
     #worryInput:focus {
-      border-color: #f59e0b;
-      background: rgba(4, 6, 12, 0.95);
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+      border-color: #fbbf24;
+      background: rgba(8, 12, 22, 0.95);
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.35);
     }
     #worryInput::placeholder {
       color: #64748b;
       font-size: 14px;
+      font-weight: 500;
     }
-    .btn-submit {
+    .btn-place {
       height: 48px;
       padding: 0 20px;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #0b0d13;
-      font-weight: 700;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #0f172a;
+      font-weight: 800;
       font-size: 15px;
       border: none;
-      border-radius: 14px;
+      border-radius: 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
       white-space: nowrap;
-      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.45);
       transition: transform 0.15s, opacity 0.2s;
     }
-    .btn-submit:active {
+    .btn-place:active {
       transform: scale(0.95);
       opacity: 0.9;
     }
 
-    /* 완료 모달 (안식으로 화면 끄기) */
+    /* 일출 여명 알림 토스트 (해 뜰 때 화면 중앙) */
+    .sunrise-banner {
+      display: none;
+      position: absolute;
+      top: 18%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 10px 24px;
+      border-radius: 30px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      box-shadow: 0 8px 30px rgba(244, 63, 94, 0.4);
+      z-index: 25;
+      text-align: center;
+      animation: bannerSlide 1s ease forwards;
+    }
+    @keyframes bannerSlide {
+      from { opacity: 0; transform: translate(-50%, -15px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* 안식 완료 & 아침 맞이 모달 */
     .finish-modal {
       display: none;
       position: fixed;
@@ -243,7 +277,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(3, 4, 7, 0.94);
+      background: rgba(15, 10, 25, 0.88);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       z-index: 100;
@@ -252,55 +286,61 @@
       justify-content: center;
       padding: 30px;
       text-align: center;
-      animation: modalFadeIn 0.8s ease forwards;
+      animation: modalFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes modalFadeIn {
-      from { opacity: 0; transform: scale(0.96); }
+      from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
-    .candle-icon {
-      font-size: 52px;
+    .sun-icon {
+      font-size: 56px;
       margin-bottom: 20px;
-      filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.6));
+      filter: drop-shadow(0 0 30px rgba(251, 191, 36, 0.8));
+      animation: floatSun 3s ease-in-out infinite alternate;
     }
-    .finish-title {
-      font-family: 'Noto Serif KR', serif;
+    @keyframes floatSun {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-8px) scale(1.05); }
+    }
+    .modal-h2 {
       font-size: 24px;
-      font-weight: 600;
-      color: #f8fafc;
+      font-weight: 800;
+      color: #ffffff;
       line-height: 1.5;
       margin-bottom: 14px;
+      letter-spacing: -0.3px;
     }
-    .finish-desc {
+    .modal-p {
       font-size: 15px;
-      color: #94a3b8;
+      color: #cbd5e1;
       line-height: 1.8;
       max-width: 340px;
       margin-bottom: 30px;
-      font-weight: 300;
+      font-weight: 600;
     }
-    .finish-tag {
+    .modal-tag {
       font-size: 13px;
-      color: #f59e0b;
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      padding: 8px 18px;
+      font-weight: 800;
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      padding: 8px 20px;
       border-radius: 30px;
       margin-bottom: 36px;
     }
-    .btn-screen-off {
+    .btn-sleep {
       background: #1e293b;
-      border: 1px solid #475569;
-      color: #f1f5f9;
+      border: 1px solid #64748b;
+      color: #ffffff;
       padding: 16px 36px;
       font-size: 15px;
-      font-weight: 600;
-      border-radius: 16px;
+      font-weight: 800;
+      border-radius: 18px;
       cursor: pointer;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
       transition: all 0.2s;
     }
-    .btn-screen-off:active {
+    .btn-sleep:active {
       background: #334155;
       transform: scale(0.96);
     }
@@ -308,53 +348,54 @@
 </head>
 <body>
 
-  <!-- 인터랙티브 캔버스 -->
   <canvas id="worldCanvas"></canvas>
 
-  <!-- 상단 상태 바 -->
   <div class="top-bar">
     <div class="brand-pill">
-      <div class="brand-sub"><span class="pulse-dot"></span> VIRTUAL SANCTUARY</div>
-      <div class="brand-title">마음 돌탑</div>
-      <div class="brand-count" id="countDisplay">고요히 머무는 이 42명 · 오늘 쌓인 마음 1,428개</div>
+      <div class="brand-badge"><span class="live-dot"></span> VIRTUAL SANCTUARY</div>
+      <div class="brand-name">마음 돌탑</div>
+      <div class="brand-status" id="countStatus">고요히 머무는 이 42명 · 오늘 쌓인 마음 1,428개</div>
     </div>
-    <button class="btn-chime" id="btnSound" title="풍경소리 울리기">🔔</button>
+    <div class="top-controls">
+      <button class="ctrl-btn" id="btnSound" title="치유의 종소리">🔔</button>
+      <button class="ctrl-btn" id="btnToggleSunrise" title="일출 / 밤하늘 전환">🌅</button>
+    </div>
   </div>
 
-  <!-- 떠다니는 다른 청년들의 생각들 -->
-  <div class="community-layer" id="bubbleLayer"></div>
+  <div class="sunrise-banner" id="sunriseBanner">
+    🌅 어둠이 걷히고, 마음에 따스한 아침 햇살이 비춥니다
+  </div>
 
-  <!-- 하단 마음 입력 및 돌 얹기 독 -->
+  <div class="bubble-layer" id="bubbleLayer"></div>
+
   <div class="bottom-bar">
-    <div class="input-card">
-      <div class="card-label">
+    <div class="input-dock" id="inputDock">
+      <div class="dock-header">
         <span>오늘 밤 내려놓고 싶은 <strong>마음 한 줄</strong></span>
-        <span style="color:#f59e0b;">하루 딱 1개</span>
+        <span style="color:#fbbf24; font-weight:800;">하루 딱 1개</span>
       </div>
-      <div class="input-group">
+      <div class="input-row">
         <input type="text" id="worryInput" placeholder="예: 오늘 하루도 참 치열하게 버텼다. 이제 쉴래." maxlength="30" autocomplete="off">
-        <button class="btn-submit" id="btnPlace">
+        <button class="btn-place" id="btnPlace">
           <span>🪨 돌 얹기</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- 안식 완료 마침표 모달 -->
   <div class="finish-modal" id="finishModal">
-    <div class="candle-icon">🕯️</div>
-    <h2 class="finish-title">오늘의 돌이 고요히 얹혔습니다.<br>수고 많으셨습니다.</h2>
-    <p class="finish-desc">
-      오늘 하루 짊어졌던 무거운 짐은 돌탑에 맡겨두었습니다.<br><br>
-      더 이상의 영상도, 끝없는 알고리즘도 없습니다.<br>
-      이제 스마트폰을 내려두고 온전한 안식으로 들어가세요.
+    <div class="sun-icon">🌅</div>
+    <h2 class="modal-h2">새벽의 어둠이 걷히고<br>온전한 안식의 아침이 찾아왔습니다.</h2>
+    <p class="modal-p">
+      어제의 모든 무거운 짐은 돌탑에 맡겨두었습니다.<br><br>
+      더 이상의 릴스도, 끝없는 알고리즘도 없습니다.<br>
+      이제 스마트폰을 내려두고, 포근한 쉼 속으로 들어가세요.
     </p>
-    <div class="finish-tag">🌙 오늘의 서비스가 종료되었습니다</div>
-    <button class="btn-screen-off" id="btnBlackout">스마트폰 화면 끄기</button>
+    <div class="modal-tag">🌙 오늘의 서비스가 종료되었습니다</div>
+    <button class="btn-sleep" id="btnScreenOff">스마트폰 화면 끄기</button>
   </div>
 
   <script>
-    // 캔버스 그래픽 엔진
     const canvas = document.getElementById('worldCanvas');
     const ctx = canvas.getContext('2d');
     let W = canvas.width = window.innerWidth;
@@ -363,78 +404,128 @@
     window.addEventListener('resize', () => {
       W = canvas.width = window.innerWidth;
       H = canvas.height = window.innerHeight;
-      initElements();
+      initStarsAndSpirits();
     });
 
     const stars = [];
-    const fireflies = [];
+    const spirits = [];
+    const particles = [];
 
-    // 돌탑 층별 데이터 (온라인 산사 스타일 부드러운 자연석)
+    // 일출 (Sunrise) 진행률 (0: 깊은 밤 ~ 1: 찬란한 아침 일출)
+    let sunriseProgress = 0;
+    let isSunriseTarget = false;
+
+    // 메타버스 정령 아바타 (유저 캐릭터)
+    const myAvatar = {
+      x: W * 0.35,
+      y: H * 0.65,
+      targetX: W * 0.35,
+      targetY: H * 0.65,
+      blinkTimer: 0,
+      isBlinking: false
+    };
+
+    // 몽글몽글 자연석 3D 조약돌
     const stones = [
-      { w: 165, h: 46, text: "취업과 진로의 불안", c1: "#3b4759", c2: "#182230" },
-      { w: 135, h: 40, text: "끝없는 과제와 조모임", c1: "#47576d", c2: "#1e2b3d" },
-      { w: 110, h: 36, text: "남들과 비교하며 지친 나", c1: "#546882", c2: "#26364d" },
-      { w: 85,  h: 32, text: "도파민 알고리즘 멈추기", c1: "#637a99", c2: "#2f425e" },
-      { w: 68,  h: 28, text: "나를 위한 온전한 쉼", c1: "#738eb2", c2: "#395073" }
+      { w: 175, h: 50, text: "취업과 진로의 불안", cTop: "#475569", cBot: "#1e293b" },
+      { w: 145, h: 44, text: "끝없는 과제와 조모임", cTop: "#546882", cBot: "#243247" },
+      { w: 120, h: 40, text: "남들과 비교하며 지친 나", cTop: "#627d9e", cBot: "#2b3d54" },
+      { w: 95,  h: 36, text: "도파민 알고리즘 멈추기", cTop: "#7193bc", cBot: "#354c69" },
+      { w: 75,  h: 32, text: "나를 위한 온전한 쉼", cTop: "#82a9d8", cBot: "#3e5b80" }
     ];
 
-    function initElements() {
+    function initStarsAndSpirits() {
       stars.length = 0;
-      for (let i = 0; i < 70; i++) {
+      for (let i = 0; i < 75; i++) {
         stars.push({
           x: Math.random() * W,
-          y: Math.random() * (H * 0.65),
+          y: Math.random() * (H * 0.68),
           r: Math.random() * 1.5 + 0.5,
           a: Math.random() * 0.8 + 0.2,
           sp: Math.random() * 0.03 + 0.01
         });
       }
 
-      fireflies.length = 0;
-      for (let i = 0; i < 22; i++) {
-        fireflies.push({
-          x: Math.random() * W,
-          y: H * 0.4 + Math.random() * (H * 0.45),
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.4,
-          r: Math.random() * 2 + 1,
-          a: Math.random() * 0.6 + 0.2,
-          sp: Math.random() * 0.05 + 0.02
+      spirits.length = 0;
+      const spiritNames = ["민지의 쉼", "준호의 안식", "소연의 별", "지훈의 숨", "하은의 밤"];
+      for (let i = 0; i < 5; i++) {
+        spirits.push({
+          x: W * (0.15 + Math.random() * 0.7),
+          y: H * (0.45 + Math.random() * 0.3),
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.3,
+          color: ["#6ee7b7", "#93c5fd", "#fbcfe8", "#fde047", "#c4b5fd"][i],
+          name: spiritNames[i],
+          floatOffset: Math.random() * Math.PI * 2
         });
       }
     }
-    initElements();
+    initStarsAndSpirits();
 
-    // 맑은 사찰 종소리 (Web Audio API)
+    function spawnSparkles(x, y) {
+      for (let i = 0; i < 18; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 3.5 + 1;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          r: Math.random() * 2.5 + 1,
+          alpha: 1,
+          color: Math.random() > 0.5 ? '#fbbf24' : '#f43f5e'
+        });
+      }
+    }
+
+    window.addEventListener('pointerdown', (e) => {
+      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+        myAvatar.targetX = e.clientX;
+        myAvatar.targetY = Math.max(H * 0.4, Math.min(H * 0.75, e.clientY));
+        spawnSparkles(e.clientX, e.clientY);
+      }
+    });
+
     let audioCtx = null;
-    function playBell() {
+    function playChime() {
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
-        const osc = audioCtx.createOscillator();
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
 
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(528, audioCtx.currentTime); // 528Hz 사랑과 치유의 주파수
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.0);
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(528, audioCtx.currentTime);
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(1056, audioCtx.currentTime);
 
-        osc.connect(gain);
+        gain.gain.setValueAtTime(0.32, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.2);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
         gain.connect(audioCtx.destination);
 
-        osc.start();
-        osc.stop(audioCtx.currentTime + 3.0);
+        osc1.start();
+        osc2.start();
+        osc1.stop(audioCtx.currentTime + 3.2);
+        osc2.stop(audioCtx.currentTime + 3.2);
       } catch (e) {}
     }
 
     document.getElementById('btnSound').addEventListener('click', () => {
-      playBell();
-      alert("은은한 쉼의 종소리가 울렸습니다 🔔");
+      playChime();
+      spawnSparkles(W - 40, 40);
     });
 
-    // 다른 사람들의 생각 말풍선
-    const bubbleMsgs = [
+    document.getElementById('btnToggleSunrise').addEventListener('click', () => {
+      isSunriseTarget = !isSunriseTarget;
+      playChime();
+    });
+
+    const thoughts = [
       "자취방에서 릴스 그만 보고 자야지",
       "취업 불안하지만 오늘도 버텼다",
       "엄마 전화 못 받아서 미안해",
@@ -442,64 +533,150 @@
       "내일은 조금 더 편안하길"
     ];
     const bubbleLayer = document.getElementById('bubbleLayer');
-    bubbleMsgs.forEach((txt, i) => {
+    thoughts.forEach((txt, i) => {
       const b = document.createElement('div');
-      b.className = 'stone-bubble';
+      b.className = 'thought-bubble';
       b.textContent = `🪨 "${txt}"`;
       b.style.left = `${10 + (i % 2) * 55 + Math.random() * 10}%`;
-      b.style.top = `${25 + Math.floor(i / 2) * 16 + Math.random() * 6}%`;
+      b.style.top = `${24 + Math.floor(i / 2) * 16 + Math.random() * 6}%`;
       b.style.animationDelay = `${i * 0.8}s`;
       b.addEventListener('click', () => {
-        playBell();
-        alert(`익명의 청년이 탑에 남긴 마음:\n\n"${txt}"\n\n함께 위로를 보냈습니다 🕊️`);
+        playChime();
+        spawnSparkles(b.offsetLeft + 50, b.offsetTop + 15);
+        alert(`익명의 청년이 탑에 남긴 마음:\n\n"${txt}"\n\n함께 따뜻한 위로를 보냈습니다 🕊️`);
       });
       bubbleLayer.appendChild(b);
     });
 
-    // 렌더링 루프
+    // 몽글몽글 조약돌 그리기
+    function drawPebble(cx, cy, w, h, cTop, cBot, text, isGolden = false) {
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      const rx = w / 2;
+      const ry = h / 2;
+
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetY = 7;
+
+      const grad = ctx.createLinearGradient(-rx * 0.5, -ry, rx * 0.5, ry);
+      grad.addColorStop(0, cTop);
+      grad.addColorStop(1, cBot);
+      ctx.fillStyle = grad;
+
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowColor = 'transparent';
+      const hlGrad = ctx.createLinearGradient(0, -ry, 0, 0);
+      hlGrad.addColorStop(0, isGolden ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.3)');
+      hlGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = hlGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, -ry * 0.35, rx * 0.82, ry * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = isGolden ? 'rgba(253, 230, 138, 0.8)' : 'rgba(255, 255, 255, 0.18)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      ctx.fillStyle = isGolden ? '#0f172a' : '#f8fafc';
+      ctx.font = `800 ${Math.max(11, Math.min(13, h * 0.35))}px 'NanumSquareRound', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 0, 1);
+
+      ctx.restore();
+    }
+
     let dropAnim = null;
-    function draw() {
+    function render() {
       const towerX = W / 2;
       const towerBaseY = H * 0.72;
 
-      // 1. 배경 밤하늘
-      const bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, '#05070b');
-      bg.addColorStop(0.5, '#0b101c');
-      bg.addColorStop(1, '#161f30');
-      ctx.fillStyle = bg;
+      // 일출 진행도 부드럽게 보간
+      if (isSunriseTarget && sunriseProgress < 1) {
+        sunriseProgress += 0.008;
+      } else if (!isSunriseTarget && sunriseProgress > 0) {
+        sunriseProgress -= 0.012;
+      }
+      sunriseProgress = Math.max(0, Math.min(1, sunriseProgress));
+
+      // 1. 하늘 그라디언트 (밤하늘 ➔ 찬란한 일출 여명)
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+      if (sunriseProgress === 0) {
+        skyGrad.addColorStop(0, '#04060c');
+        skyGrad.addColorStop(0.5, '#0a101d');
+        skyGrad.addColorStop(1, '#141d30');
+      } else {
+        // 일출 컬러 블렌딩 (라벤더 ➔ 피치 로즈 ➔ 황금빛 아침 태양)
+        skyGrad.addColorStop(0, `rgb(${Math.round(4 + 35 * sunriseProgress)}, ${Math.round(6 + 30 * sunriseProgress)}, ${Math.round(12 + 80 * sunriseProgress)})`);
+        skyGrad.addColorStop(0.45, `rgb(${Math.round(10 + 180 * sunriseProgress)}, ${Math.round(16 + 70 * sunriseProgress)}, ${Math.round(29 + 80 * sunriseProgress)})`);
+        skyGrad.addColorStop(0.75, `rgb(${Math.round(20 + 230 * sunriseProgress)}, ${Math.round(29 + 130 * sunriseProgress)}, ${Math.round(48 + 40 * sunriseProgress)})`);
+        skyGrad.addColorStop(1, `rgb(${Math.round(20 + 235 * sunriseProgress)}, ${Math.round(29 + 180 * sunriseProgress)}, ${Math.round(48 + 60 * sunriseProgress)})`);
+      }
+      ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, W, H);
 
-      // 2. 은은한 보름달
-      const mx = W * 0.82;
-      const my = H * 0.16;
-      const mg = ctx.createRadialGradient(mx, my, 8, mx, my, 100);
-      mg.addColorStop(0, 'rgba(255, 253, 240, 0.95)');
-      mg.addColorStop(0.3, 'rgba(245, 230, 180, 0.35)');
-      mg.addColorStop(0.8, 'rgba(245, 200, 100, 0.08)');
-      mg.addColorStop(1, 'transparent');
-      ctx.fillStyle = mg;
-      ctx.beginPath();
-      ctx.arc(mx, my, 100, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#fffdf0';
-      ctx.beginPath();
-      ctx.arc(mx, my, 26, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 3. 반짝이는 별빛
-      stars.forEach(s => {
-        s.a += s.sp;
-        const alpha = 0.3 + Math.sin(s.a) * 0.4;
-        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      // 2. 태양 / 달
+      if (sunriseProgress < 0.8) {
+        // 보름달 (일출 시 점점 흐려짐)
+        const mx = W * 0.82;
+        const my = H * 0.16;
+        const moonAlpha = 1 - sunriseProgress;
+        const mg = ctx.createRadialGradient(mx, my, 8, mx, my, 110);
+        mg.addColorStop(0, `rgba(255, 253, 240, ${0.95 * moonAlpha})`);
+        mg.addColorStop(0.25, `rgba(251, 191, 36, ${0.35 * moonAlpha})`);
+        mg.addColorStop(1, 'transparent');
+        ctx.fillStyle = mg;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.arc(mx, my, 110, 0, Math.PI * 2);
         ctx.fill();
-      });
 
-      // 4. 고즈넉한 지면
-      ctx.fillStyle = '#080c14';
+        ctx.fillStyle = `rgba(255, 253, 240, ${moonAlpha})`;
+        ctx.beginPath();
+        ctx.arc(mx, my, 26, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (sunriseProgress > 0.1) {
+        // 떠오르는 아침 해 (Sunrise Sun)
+        const sunX = W * 0.5;
+        const sunY = (H * 0.82) - (sunriseProgress * H * 0.25);
+        const sunGlow = ctx.createRadialGradient(sunX, sunY, 15, sunX, sunY, 180 * sunriseProgress);
+        sunGlow.addColorStop(0, 'rgba(254, 240, 138, 0.95)');
+        sunGlow.addColorStop(0.3, 'rgba(251, 146, 60, 0.6)');
+        sunGlow.addColorStop(0.7, 'rgba(244, 63, 94, 0.2)');
+        sunGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = sunGlow;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, 180 * sunriseProgress, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 태양 핵
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, 32 * sunriseProgress, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 3. 별빛 (낮에는 페이드아웃)
+      if (sunriseProgress < 0.7) {
+        const starFade = 1 - (sunriseProgress / 0.7);
+        stars.forEach(s => {
+          s.a += s.sp;
+          const alpha = (0.3 + Math.sin(s.a) * 0.45) * starFade;
+          ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      // 4. 지면 언덕
+      ctx.fillStyle = sunriseProgress > 0.4 ? '#181e2b' : '#080c16';
       ctx.beginPath();
       ctx.moveTo(0, H * 0.76);
       ctx.quadraticCurveTo(W * 0.5, H * 0.73, W, H * 0.78);
@@ -508,126 +685,169 @@
       ctx.closePath();
       ctx.fill();
 
-      // 5. 탑 받침석
+      // 5. 돌탑 받침석
       ctx.fillStyle = '#1e293b';
       ctx.beginPath();
-      ctx.ellipse(towerX, towerBaseY + 16, 105, 14, 0, 0, Math.PI * 2);
+      ctx.ellipse(towerX, towerBaseY + 16, 110, 15, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1;
       ctx.stroke();
 
+      // 석등
+      const lanternX = towerX + 130;
+      const lanternY = towerBaseY - 10;
+      const lg = ctx.createRadialGradient(lanternX, lanternY - 18, 4, lanternX, lanternY - 18, 35);
+      lg.addColorStop(0, 'rgba(251, 191, 36, 0.6)');
+      lg.addColorStop(1, 'transparent');
+      ctx.fillStyle = lg;
+      ctx.beginPath();
+      ctx.arc(lanternX, lanternY - 18, 35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(lanternX - 6, lanternY - 12, 12, 24);
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(lanternX, lanternY - 18, 6, 0, Math.PI * 2);
+      ctx.fill();
+
       // 6. 돌탑 쌓기
-      let curY = towerBaseY + 8;
-      stones.forEach((st, idx) => {
+      let curY = towerBaseY + 6;
+      stones.forEach(st => {
         curY -= (st.h * 0.76);
-        const rx = st.w / 2;
-        const ry = st.h / 2;
-
-        ctx.save();
-        ctx.translate(towerX, curY);
-
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
-        ctx.shadowBlur = 12;
-        ctx.shadowOffsetY = 5;
-
-        const sg = ctx.createLinearGradient(-rx, -ry, rx, ry);
-        sg.addColorStop(0, st.c1);
-        sg.addColorStop(1, st.c2);
-        ctx.fillStyle = sg;
-
-        ctx.beginPath();
-        ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.shadowColor = 'transparent';
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
-        ctx.fillStyle = 'rgba(241, 245, 249, 0.88)';
-        ctx.font = '11px "Noto Serif KR", serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(st.text, 0, 0);
-
-        ctx.restore();
+        drawPebble(towerX, curY, st.w, st.h, st.cTop, st.cBot, st.text);
       });
 
-      // 떨어지는 새 조약돌
+      // 새로 떨어지는 금빛 조약돌
       if (dropAnim) {
         dropAnim.t += 0.04;
         const p = Math.min(1, dropAnim.t);
         const ease = 1 - Math.pow(1 - p, 3);
         const dy = dropAnim.sy + (dropAnim.ey - dropAnim.sy) * ease;
 
-        ctx.save();
-        ctx.translate(towerX, dy);
-
-        ctx.shadowColor = 'rgba(245, 158, 11, 0.7)';
-        ctx.shadowBlur = 20;
-
-        const dg = ctx.createLinearGradient(-30, -15, 30, 15);
-        dg.addColorStop(0, '#fbbf24');
-        dg.addColorStop(1, '#b45309');
-        ctx.fillStyle = dg;
-
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 32, 16, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#05070b';
-        ctx.font = 'bold 10px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(dropAnim.text, 0, 0);
-
-        ctx.restore();
+        drawPebble(towerX, dy, 70, 30, '#fbbf24', '#d97706', dropAnim.text, true);
+        spawnSparkles(towerX + (Math.random() - 0.5) * 20, dy);
 
         if (p >= 1) {
           stones.push({
-            w: 64,
-            h: 26,
+            w: 70,
+            h: 30,
             text: dropAnim.text,
-            c1: "#f59e0b",
-            c2: "#b45309"
+            cTop: "#fbbf24",
+            cBot: "#d97706"
           });
           dropAnim = null;
-          playBell();
+          playChime();
+          spawnSparkles(towerX, dy);
 
+          // 일출 트리거 시작! 🌅
+          isSunriseTarget = true;
+          document.getElementById('sunriseBanner').style.display = 'block';
+
+          // 2.2초 후 모달 띄우기
           setTimeout(() => {
             document.getElementById('finishModal').style.display = 'flex';
-          }, 1000);
+          }, 2200);
         }
       }
 
-      // 7. 반딧불이
-      fireflies.forEach(f => {
-        f.x += f.vx;
-        f.y += f.vy;
-        if (f.x < 0) f.x = W;
-        if (f.x > W) f.x = 0;
-        if (f.y < H * 0.4) f.vy *= -1;
-        if (f.y > H * 0.82) f.vy *= -1;
+      // 7. 메타버스 정령 친구들
+      spirits.forEach(sp => {
+        sp.floatOffset += 0.03;
+        sp.x += sp.vx;
+        sp.y += sp.vy + Math.sin(sp.floatOffset) * 0.2;
+        if (sp.x < 40 || sp.x > W - 40) sp.vx *= -1;
+        if (sp.y < H * 0.4 || sp.y > H * 0.75) sp.vy *= -1;
 
-        f.a += f.sp;
-        const alpha = 0.2 + Math.abs(Math.sin(f.a)) * 0.6;
-        ctx.fillStyle = `rgba(245, 158, 11, ${alpha})`;
+        ctx.fillStyle = sp.color;
+        ctx.shadowColor = sp.color;
+        ctx.shadowBlur = 12;
         ctx.beginPath();
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.arc(sp.x, sp.y, 4, 0, Math.PI * 2);
         ctx.fill();
+        ctx.shadowColor = 'transparent';
+
+        ctx.fillStyle = 'rgba(241, 245, 249, 0.8)';
+        ctx.font = '700 10px "NanumSquareRound", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(sp.name, sp.x, sp.y - 8);
       });
 
-      requestAnimationFrame(draw);
-    }
-    draw();
+      // 8. 내 아바타
+      myAvatar.x += (myAvatar.targetX - myAvatar.x) * 0.06;
+      myAvatar.y += (myAvatar.targetY - myAvatar.y) * 0.06;
 
-    // 돌 얹기 클릭 이벤트
+      ctx.save();
+      const avY = myAvatar.y + Math.sin(Date.now() * 0.003) * 4;
+      ctx.translate(myAvatar.x, avY);
+
+      const avGlow = ctx.createRadialGradient(0, 0, 5, 0, 0, 24);
+      avGlow.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+      avGlow.addColorStop(0.5, 'rgba(251, 191, 36, 0.4)');
+      avGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = avGlow;
+      ctx.beginPath();
+      ctx.arc(0, 0, 24, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 11, 0, Math.PI * 2);
+      ctx.fill();
+
+      myAvatar.blinkTimer++;
+      if (myAvatar.blinkTimer > 180) {
+        myAvatar.isBlinking = true;
+        if (myAvatar.blinkTimer > 192) {
+          myAvatar.blinkTimer = 0;
+          myAvatar.isBlinking = false;
+        }
+      }
+
+      ctx.fillStyle = '#0f172a';
+      if (myAvatar.isBlinking) {
+        ctx.fillRect(-5, -1, 3, 1);
+        ctx.fillRect(2, -1, 3, 1);
+      } else {
+        ctx.beginPath();
+        ctx.arc(-3.5, -1, 1.2, 0, Math.PI * 2);
+        ctx.arc(3.5, -1, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = '800 11px "NanumSquareRound", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('나의 마음', 0, -18);
+      ctx.restore();
+
+      // 9. 별가루 파티클
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.025;
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      }
+
+      requestAnimationFrame(render);
+    }
+    render();
+
+    // 돌 얹기
     const btnPlace = document.getElementById('btnPlace');
     const worryInput = document.getElementById('worryInput');
-    const countDisplay = document.getElementById('countDisplay');
+    const countStatus = document.getElementById('countStatus');
 
-    
     worryInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -639,14 +859,14 @@
       const val = worryInput.value.trim() || '오늘 하루도 참 고생 많았다';
       if (dropAnim) return;
 
-      playBell();
+      playChime();
 
-      let topY = (H * 0.72) + 8;
+      let topY = (H * 0.72) + 6;
       stones.forEach(s => { topY -= (s.h * 0.76); });
 
       dropAnim = {
         sy: H * 0.15,
-        ey: topY - 20,
+        ey: topY - 22,
         t: 0,
         text: val
       };
@@ -656,15 +876,14 @@
       btnPlace.disabled = true;
       btnPlace.style.opacity = '0.5';
 
-      countDisplay.textContent = '고요히 머무는 이 42명 · 오늘 쌓인 마음 1,429개 (+1)';
+      countStatus.textContent = '고요히 머무는 이 42명 · 오늘 쌓인 마음 1,429개 (+1)';
     });
 
-    // 화면 끄기
-    document.getElementById('btnBlackout').addEventListener('click', () => {
+    document.getElementById('btnScreenOff').addEventListener('click', () => {
       document.body.innerHTML = `
         <div style="width:100vw; height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px;">
           <div style="font-size:36px; margin-bottom:18px;">🌙</div>
-          <div style="font-size:20px; color:#f1f5f9; font-weight:600; margin-bottom:10px; font-family:'Noto Serif KR',serif;">화면이 꺼졌습니다.</div>
+          <div style="font-size:20px; color:#f8fafc; font-weight:800; margin-bottom:10px;">화면이 꺼졌습니다.</div>
           <div style="font-size:14px; color:#64748b; line-height:1.7;">스마트폰 전원 버튼을 누르고<br>오늘 밤은 깊고 편안한 안식 속으로 들어가세요.</div>
         </div>
       `;
