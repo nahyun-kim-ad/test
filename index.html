@@ -524,7 +524,10 @@
       } catch (e) {}
     }
 
-    // 잔잔하게 계속 흐르는 앰비언스 BGM (포근한 밤바람 & 신비로운 명상음)
+    // 졸졸졸 흐르는 청아한 시냇물 소리 & 맑은 물방울/풍경 힐링 멜로디 BGM
+    let brookNode = null;
+    let melodyInterval = null;
+
     function startContinuousBgm() {
       initAudio();
       if (isBgmPlaying) return;
@@ -533,36 +536,63 @@
 
       bgmGain = audioCtx.createGain();
       bgmGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-      bgmGain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 2.0);
+      bgmGain.gain.linearRampToValueAtTime(0.16, audioCtx.currentTime + 1.5);
       bgmGain.connect(audioCtx.destination);
 
-      // 깊은 밤의 명상 싱잉볼 드론 화음 (108Hz, 216Hz, 324Hz)
-      const freqs = [108, 216, 324];
-      freqs.forEach(f => {
-        const osc = audioCtx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
-        osc.connect(bgmGain);
-        osc.start();
-      });
+      // 1. 졸졸졸 맑은 시냇물 소리 합성 (노이즈 버퍼 + 밴드패스 필터 모듈레이션)
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = (Math.random() * 2 - 1) * 0.4;
+      }
+      const whiteNoise = audioCtx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
 
-      // 8초마다 은은하게 한 번씩 울리는 고요한 바람종소리
-      chimeInterval = setInterval(() => {
+      // 맑은 물 흐르는 필터 (450Hz~900Hz 부드러운 유속 감성)
+      const waterFilter = audioCtx.createBiquadFilter();
+      waterFilter.type = 'bandpass';
+      waterFilter.frequency.setValueAtTime(650, audioCtx.currentTime);
+      waterFilter.Q.setValueAtTime(2.2, audioCtx.currentTime);
+
+      // 물결의 일렁임을 만드는 LFO 저주파 발진기
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+      lfo.frequency.setValueAtTime(0.35, audioCtx.currentTime);
+      lfoGain.gain.setValueAtTime(180, audioCtx.currentTime);
+      lfo.connect(lfoGain);
+      lfoGain.connect(waterFilter.frequency);
+      lfo.start();
+
+      whiteNoise.connect(waterFilter);
+      waterFilter.connect(bgmGain);
+      whiteNoise.start();
+      brookNode = whiteNoise;
+
+      // 2. 맑은 물방울 퐁당 & 숲속 맑은 오르골/피아노 펜타토닉 선율 (도 레 미 솔 라)
+      const notes = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
+      melodyInterval = setInterval(() => {
         if (!isBgmPlaying) return;
         try {
-          const chimeOsc = audioCtx.createOscillator();
-          const chimeGain = audioCtx.createGain();
-          chimeOsc.type = 'sine';
-          const randomPitch = [528, 660, 792, 1056][Math.floor(Math.random() * 4)];
-          chimeOsc.frequency.setValueAtTime(randomPitch, audioCtx.currentTime);
-          chimeGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-          chimeGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4.0);
-          chimeOsc.connect(chimeGain);
-          chimeGain.connect(audioCtx.destination);
-          chimeOsc.start();
-          chimeOsc.stop(audioCtx.currentTime + 4.0);
+          // 물방울 퐁당 톤
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const note = notes[Math.floor(Math.random() * notes.length)];
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(note * 1.5, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(note, audioCtx.currentTime + 0.12);
+
+          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0005, audioCtx.currentTime + 2.4);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 2.4);
         } catch (e) {}
-      }, 7000);
+      }, 2600);
     }
 
     function stopContinuousBgm() {
@@ -572,7 +602,8 @@
       if (bgmGain) {
         bgmGain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 1.0);
       }
-      if (chimeInterval) clearInterval(chimeInterval);
+      if (melodyInterval) clearInterval(melodyInterval);
+      if (brookNode) { try { brookNode.stop(); } catch(e){} }
     }
 
     document.getElementById('btnSound').addEventListener('click', () => {
