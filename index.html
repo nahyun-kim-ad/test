@@ -484,11 +484,23 @@
     });
 
     let audioCtx = null;
-    function playChime() {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+    let isBgmPlaying = false;
+    let bgmGain = null;
+    let chimeInterval = null;
 
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // 단발성 맑은 타종 (돌 얹을 때)
+    function playChime() {
+      initAudio();
+      try {
         const osc1 = audioCtx.createOscillator();
         const osc2 = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -498,8 +510,8 @@
         osc2.type = 'triangle';
         osc2.frequency.setValueAtTime(1056, audioCtx.currentTime);
 
-        gain.gain.setValueAtTime(0.32, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.2);
+        gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.5);
 
         osc1.connect(gain);
         osc2.connect(gain);
@@ -507,15 +519,78 @@
 
         osc1.start();
         osc2.start();
-        osc1.stop(audioCtx.currentTime + 3.2);
-        osc2.stop(audioCtx.currentTime + 3.2);
+        osc1.stop(audioCtx.currentTime + 3.5);
+        osc2.stop(audioCtx.currentTime + 3.5);
       } catch (e) {}
     }
 
+    // 잔잔하게 계속 흐르는 앰비언스 BGM (포근한 밤바람 & 신비로운 명상음)
+    function startContinuousBgm() {
+      initAudio();
+      if (isBgmPlaying) return;
+      isBgmPlaying = true;
+      document.getElementById('btnSound').textContent = '🔊';
+
+      bgmGain = audioCtx.createGain();
+      bgmGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+      bgmGain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 2.0);
+      bgmGain.connect(audioCtx.destination);
+
+      // 깊은 밤의 명상 싱잉볼 드론 화음 (108Hz, 216Hz, 324Hz)
+      const freqs = [108, 216, 324];
+      freqs.forEach(f => {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+        osc.connect(bgmGain);
+        osc.start();
+      });
+
+      // 8초마다 은은하게 한 번씩 울리는 고요한 바람종소리
+      chimeInterval = setInterval(() => {
+        if (!isBgmPlaying) return;
+        try {
+          const chimeOsc = audioCtx.createOscillator();
+          const chimeGain = audioCtx.createGain();
+          chimeOsc.type = 'sine';
+          const randomPitch = [528, 660, 792, 1056][Math.floor(Math.random() * 4)];
+          chimeOsc.frequency.setValueAtTime(randomPitch, audioCtx.currentTime);
+          chimeGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+          chimeGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4.0);
+          chimeOsc.connect(chimeGain);
+          chimeGain.connect(audioCtx.destination);
+          chimeOsc.start();
+          chimeOsc.stop(audioCtx.currentTime + 4.0);
+        } catch (e) {}
+      }, 7000);
+    }
+
+    function stopContinuousBgm() {
+      if (!isBgmPlaying) return;
+      isBgmPlaying = false;
+      document.getElementById('btnSound').textContent = '🔇';
+      if (bgmGain) {
+        bgmGain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 1.0);
+      }
+      if (chimeInterval) clearInterval(chimeInterval);
+    }
+
     document.getElementById('btnSound').addEventListener('click', () => {
-      playChime();
-      spawnSparkles(W - 40, 40);
+      if (!isBgmPlaying) {
+        startContinuousBgm();
+        playChime();
+        spawnSparkles(W - 40, 40);
+      } else {
+        stopContinuousBgm();
+      }
     });
+
+    // 화면 아무 데나 첫 터치 시에도 자연스럽게 배경음 시작
+    window.addEventListener('pointerdown', () => {
+      if (!isBgmPlaying) {
+        startContinuousBgm();
+      }
+    }, { once: true });
 
     document.getElementById('btnToggleSunrise').addEventListener('click', () => {
       isSunriseTarget = !isSunriseTarget;
@@ -591,7 +666,9 @@
     let dropAnim = null;
     function render() {
       const towerX = W / 2;
-      const towerBaseY = H * 0.72;
+      // 모바일 하단 입력창(dock) 위쪽에 든든하게 안착하도록 위치 계산
+      const dockH = Math.min(160, H * 0.22);
+      const towerBaseY = H - dockH - 25;
 
       // 일출 진행도 부드럽게 보간
       if (isSunriseTarget && sunriseProgress < 1) {
@@ -682,14 +759,22 @@
       ctx.closePath();
       ctx.fill();
 
-      // 5. 돌탑 받침석
-      ctx.fillStyle = '#1e293b';
+      // 5. 든든한 주춧돌 (맨 밑바닥 넓적한 자연 암반 & 받침석)
+      // 1단 암반
+      const rockGrad = ctx.createLinearGradient(towerX - 130, towerBaseY, towerX + 130, towerBaseY + 30);
+      rockGrad.addColorStop(0, '#1a2333');
+      rockGrad.addColorStop(0.5, '#2d3b52');
+      rockGrad.addColorStop(1, '#111722');
+      ctx.fillStyle = rockGrad;
       ctx.beginPath();
-      ctx.ellipse(towerX, towerBaseY + 16, 110, 15, 0, 0, Math.PI * 2);
+      ctx.ellipse(towerX, towerBaseY + 22, 135, 18, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
       ctx.stroke();
+
+      // 2단 평평한 자연 주춧돌 (기반석)
+      drawPebble(towerX, towerBaseY + 4, 195, 34, '#384556', '#1a222d', '● 대지의 평온', false);
 
       // 석등
       const lanternX = towerX + 130;
@@ -858,7 +943,9 @@
 
       playChime();
 
-      let topY = (H * 0.72) + 6;
+      const dockH = Math.min(160, H * 0.22);
+      const towerBaseY = H - dockH - 25;
+      let topY = towerBaseY + 4;
       stones.forEach(s => { topY -= (s.h * 0.76); });
 
       dropAnim = {
