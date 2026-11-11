@@ -4,18 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>마음 돌탑 (Mind Stone) · 온라인 안식 공간</title>
-  <!-- 동글동글하고 따뜻한 나눔스퀘어라운드 & 고운돋움 웹폰트 -->
-  <link rel="stylesheet" href="https://hangeul.pstatic.net/hangeul_style/css/nanum-square-round.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+  <!-- 100% 프리텐다드 공식 웹폰트 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
-      font-family: 'NanumSquareRound', 'Gowun Dodum', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
     }
     html, body {
       width: 100%;
@@ -768,7 +765,7 @@
         ctx.shadowColor = 'transparent';
 
         ctx.fillStyle = 'rgba(241, 245, 249, 0.8)';
-        ctx.font = '700 10px "NanumSquareRound", sans-serif';
+        ctx.font = '700 10px "Pretendard", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(sp.name, sp.x, sp.y - 8);
       });
@@ -816,7 +813,7 @@
       }
 
       ctx.fillStyle = '#fbbf24';
-      ctx.font = '800 11px "NanumSquareRound", sans-serif';
+      ctx.font = '800 11px "Pretendard", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('나의 마음', 0, -18);
       ctx.restore();
